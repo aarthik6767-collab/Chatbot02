@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameGenie AI</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+      background: radial-gradient(circle at 15% 10%, #2b185f 0, transparent 32%), radial-gradient(circle at 85% 90%, #053b4f 0, transparent 35%), #070814;
+      color: #f5f7ff; display: flex; align-items: center; justify-content: center; padding: 22px;
+    }
+    .app { width: min(1080px, 100%); height: min(760px, 94vh); display: grid; grid-template-columns: 280px 1fr; overflow: hidden; border: 1px solid rgba(255,255,255,.12); border-radius: 28px; background: rgba(10,12,27,.82); backdrop-filter: blur(22px); box-shadow: 0 30px 100px rgba(0,0,0,.45); }
+    aside { padding: 28px 22px; background: linear-gradient(180deg, rgba(124,58,237,.20), rgba(8,12,25,.35)); border-right: 1px solid rgba(255,255,255,.08); }
+    .logo { width: 52px; height: 52px; display:grid; place-items:center; border-radius:16px; background: linear-gradient(135deg,#8b5cf6,#22d3ee); font-size:25px; box-shadow: 0 10px 30px rgba(34,211,238,.2); }
+    h1 { margin: 18px 0 6px; font-size: 25px; letter-spacing: -.7px; }
+    .tagline { color:#aeb4cc; line-height:1.55; font-size:13px; }
+    .badge { display:inline-flex; margin-top:18px; padding:7px 10px; border:1px solid rgba(34,211,238,.25); border-radius:999px; color:#7dd3fc; background:rgba(34,211,238,.07); font-size:11px; }
+    .topics { margin-top:34px; display:grid; gap:10px; }
+    .topic { padding:12px 13px; border-radius:14px; background:rgba(255,255,255,.045); color:#cbd2e9; font-size:12px; }
+    .topic b { color:#fff; display:block; margin-bottom:3px; }
+    .main { display:flex; flex-direction:column; min-width:0; }
+    header { padding: 22px 26px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,.08); }
+    .status { display:flex; gap:10px; align-items:center; font-size:13px; color:#c8cee2; }
+    .dot { width:9px; height:9px; border-radius:50%; background:#34d399; box-shadow:0 0 14px #34d399; }
+    #chat { flex:1; overflow:auto; padding:28px; display:flex; flex-direction:column; gap:16px; }
+    .welcome { max-width:650px; margin:auto; text-align:center; }
+    .welcome .orb { font-size:48px; margin-bottom:10px; }
+    .welcome h2 { margin:0 0 8px; font-size:30px; }
+    .welcome p { color:#9fa7c2; line-height:1.6; margin:0; }
+    .message { display:flex; gap:10px; max-width:82%; animation: rise .2s ease-out; }
+    .message.user { align-self:flex-end; flex-direction:row-reverse; }
+    .avatar { flex:0 0 34px; width:34px; height:34px; border-radius:11px; display:grid; place-items:center; background:#171a34; border:1px solid rgba(255,255,255,.08); }
+    .bubble { padding:12px 15px; border-radius:16px; background:rgba(255,255,255,.06); color:#e9ecf7; line-height:1.55; font-size:14px; white-space:pre-wrap; }
+    .user .bubble { background:linear-gradient(135deg,#6d28d9,#2563eb); }
+    .composer { padding:18px 22px 22px; border-top:1px solid rgba(255,255,255,.08); }
+    form { display:flex; gap:10px; padding:9px; border-radius:18px; background:#11142a; border:1px solid rgba(255,255,255,.1); }
+    textarea { flex:1; resize:none; min-height:48px; max-height:120px; border:0; outline:0; background:transparent; color:#fff; padding:13px 10px; font:inherit; }
+    textarea::placeholder { color:#707895; }
+    button { border:0; cursor:pointer; border-radius:14px; padding:0 19px; color:white; font-weight:700; background:linear-gradient(135deg,#7c3aed,#0891b2); }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .hint { text-align:center; margin-top:9px; color:#666e89; font-size:11px; }
+    @keyframes rise { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
+    @media (max-width: 760px) { .app { grid-template-columns:1fr; height:94vh; } aside { display:none; } .message { max-width:92%; } header { padding:18px; } #chat { padding:18px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="logo">🎮</div>
+      <h1>GameGenie AI</h1>
+      <div class="tagline">Your focused companion for game information, gameplay guidance and strategy.</div>
+      <div class="badge">● GAMING ONLY</div>
+      <div class="topics">
+        <div class="topic"><b>🎯 Gameplay</b>Mechanics & beginner guidance</div>
+        <div class="topic"><b>🗺️ Missions</b>Objectives, maps & progression</div>
+        <div class="topic"><b>🏆 Strategy</b>Tips, tactics & comparisons</div>
+        <div class="topic"><b>🕹️ Games</b>PC, console & mobile</div>
+      </div>
+    </aside>
+    <section class="main">
+      <header>
+        <strong>Game Information & Guidance</strong>
+        <div class="status"><span class="dot"></span> Online</div>
+      </header>
+      <div id="chat">
+        <div class="welcome" id="welcome">
+          <div class="orb">🧞‍♂️</div>
+          <h2>Hey, Gamer!</h2>
+          <p>Ask me about games, gameplay, characters, missions, strategies, requirements, or gaming terms.</p>
+        </div>
+      </div>
+      <div class="composer">
+        <form id="chatForm">
+          <textarea id="message" placeholder="Ask GameGenie about a game..." rows="1" required></textarea>
+          <button id="send" type="submit">Send ➜</button>
+        </form>
+        <div class="hint">GameGenie AI answers gaming-related questions only.</div>
+      </div>
+    </section>
+  </div>
+  <script>
+    const chat = document.getElementById('chat');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('message');
+    const send = document.getElementById('send');
+    const welcome = document.getElementById('welcome');
+
+    function addMessage(text, role) {
+      welcome?.remove();
+      const row = document.createElement('div');
+      row.className = `message ${role}`;
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = role === 'user' ? '👤' : '🎮';
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      row.append(avatar, bubble);
+      chat.appendChild(row);
+      chat.scrollTop = chat.scrollHeight;
+      return bubble;
+    }
+
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const message = input.value.trim();
+      if (!message || send.disabled) return;
+      addMessage(message, 'user');
+      input.value = '';
+      input.style.height = '48px';
+      send.disabled = true;
+      send.textContent = '...';
+      const thinking = addMessage('GameGenie is thinking...', 'bot');
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message})
+        });
+        const data = await response.json();
+        thinking.textContent = data.reply || data.error || 'Something went wrong.';
+      } catch (error) {
+        thinking.textContent = 'Unable to connect to GameGenie right now. Please try again.';
+      } finally {
+        send.disabled = false;
+        send.textContent = 'Send ➜';
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
